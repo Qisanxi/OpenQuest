@@ -44,6 +44,8 @@ android {
 
     buildFeatures {
         compose = true
+        // AGP 8 no longer generates BuildConfig by default; /status reports BuildConfig.VERSION_NAME.
+        buildConfig = true
     }
 
     packaging {
