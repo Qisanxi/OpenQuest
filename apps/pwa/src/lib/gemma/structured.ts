@@ -23,6 +23,8 @@ export interface StructuredOptions {
   repair?: boolean
   /** Max attempts (initial + repairs). Default 2. */
   maxAttempts?: number
+  /** When set, the multimodal judge path is used and the image is sent with the prompt. */
+  image?: Uint8Array
 }
 
 export async function generateStructured<T>(
@@ -30,12 +32,16 @@ export async function generateStructured<T>(
   messages: ChatMessage[],
   options: StructuredOptions = {},
 ): Promise<T | null> {
-  const { repair = true, maxAttempts = 2 } = options
+  const { repair = true, maxAttempts = 2, image } = options
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     let text = ''
-    for await (const token of gemmaClient.generate(messages)) {
-      text += token
+    if (image) {
+      text = await gemmaClient.judge(messages, image)
+    } else {
+      for await (const token of gemmaClient.generate(messages)) {
+        text += token
+      }
     }
 
     const jsonText = extractJson(text)

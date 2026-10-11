@@ -15,8 +15,6 @@
  */
 
 import { z } from 'zod'
-import type { Quest } from '@shared/quest'
-import { gemmaClient } from '../../lib/gemma/client.js'
 import { generateStructured } from '../../lib/gemma/structured.js'
 import { preprocessPhoto } from '../../lib/images/preprocess.js'
 import { isWithinRadius } from '../../lib/geo/distance.js'
@@ -67,7 +65,7 @@ class JudgeService {
     const imgBytes = new Uint8Array(await processed.blob.arrayBuffer())
 
     const messages = buildJudgeMessages(quest, gpsProximity)
-    const result = await generateStructured(JudgeResponseSchema, messages)
+    const result = await generateStructured(JudgeResponseSchema, messages, { image: imgBytes })
 
     if (!result) {
       // LLM failed to produce valid JSON. Fail safe with a clear reason.
