@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -43,10 +44,8 @@ android {
 
     buildFeatures {
         compose = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
+        // AGP 8 no longer generates BuildConfig by default; /status reports BuildConfig.VERSION_NAME.
+        buildConfig = true
     }
 
     packaging {
