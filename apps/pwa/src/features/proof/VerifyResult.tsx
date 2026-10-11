@@ -51,7 +51,7 @@ export function VerifyResult() {
         <Button
           variant={passed ? 'primary' : 'secondary'}
           className="w-full"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/quests')}
         >
           Back to quests
         </Button>

@@ -23,7 +23,7 @@ export function CompanionPair() {
     const result = await companionBridge.getStatus()
     if (result) {
       setStatus('paired')
-      setTimeout(() => navigate('/'), 1500)
+      setTimeout(() => navigate('/quests'), 1500)
     } else {
       setStatus('failed')
     }

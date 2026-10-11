@@ -57,7 +57,7 @@ export function LocationPicker() {
           onClick={() => {
             // Stash in localStorage so the quest generator picks it up next time
             localStorage.setItem('openquest.place', place)
-            navigate('/')
+            navigate('/quests')
           }}
         >
           Save & continue

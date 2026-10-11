@@ -41,7 +41,7 @@ export function Install() {
         </Button>
       </Card>
 
-      <Button variant="primary" className="w-full" onClick={() => navigate('/')}>
+      <Button variant="primary" className="w-full" onClick={() => navigate('/quests')}>
         Done — start questing
       </Button>
     </div>

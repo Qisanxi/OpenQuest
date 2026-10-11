@@ -28,7 +28,7 @@ export function PanicPinSetup() {
     // it has been set. The actual PIN lives in the Android Keystore.
     localStorage.setItem('openquest.panicPinSet', 'true')
     setSuccess(true)
-    setTimeout(() => navigate('/'), 1500)
+    setTimeout(() => navigate('/quests'), 1500)
   }
 
   return (
