@@ -52,13 +52,14 @@ interface FindResult {
 mailboxRoutes.post('/find', async (c) => {
   const formData = await c.req.formData()
   const questId = formData.get('questId') as string
-  const photo = formData.get('photo') as File
+  // Typed as unknown: the Workers FormData typings say string|null, but a file part is a File.
+  const photo: unknown = formData.get('photo')
   const questPrompt = formData.get('questPrompt') as string
   const verificationHint = formData.get('verificationHint') as string
   const placeName = formData.get('placeName') as string
   const category = formData.get('category') as string
 
-  if (!questId || !photo) return c.json({ error: 'missing_fields' }, 400)
+  if (!questId || !(photo instanceof File)) return c.json({ error: 'missing_fields' }, 400)
 
   const findId = crypto.randomUUID()
   const photoKey = `finds/${findId}.jpg`

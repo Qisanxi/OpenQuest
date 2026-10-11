@@ -9,7 +9,7 @@ import { Card } from '../../components/Card.js'
 export function VerifyResult() {
   const { questId } = useParams<{ questId: string }>()
   const navigate = useNavigate()
-  const { unlock, state: lockoutState } = useLockout()
+  const { state: lockoutState } = useLockout()
   const [quest, setQuest] = useState<Quest | null>(null)
 
   useEffect(() => {

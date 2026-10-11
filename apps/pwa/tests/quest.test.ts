@@ -1,8 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import 'fake-indexeddb/auto'
 
 // Mock the gemma client before importing the service under test
-vi.mock('../../src/lib/gemma/client', () => ({
+vi.mock('../src/lib/gemma/client', () => ({
   gemmaClient: {
     generate: vi.fn(),
     judge: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('../../src/lib/gemma/client', () => ({
   },
 }))
 
-import { checkQuest } from '../../src/lib/ai/safetyFilter'
+import { checkQuest } from '../src/lib/ai/safetyFilter'
 
 describe('safetyFilter', () => {
   it('accepts a clean quest prompt', () => {

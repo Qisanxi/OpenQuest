@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { repairJson } from '../../src/lib/ai/jsonRepair'
-import { isSafeQuest, isPlain, checkQuest } from '../../src/lib/ai/safetyFilter'
+import { repairJson } from '../src/lib/ai/jsonRepair'
+import { checkQuest } from '../src/lib/ai/safetyFilter'
 
 describe('jsonRepair', () => {
   it('strips markdown fences', () => {

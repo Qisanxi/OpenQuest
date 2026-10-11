@@ -16,7 +16,7 @@ const QuestContext = createContext<QuestContextValue | null>(null)
 
 export function QuestProvider({ children }: { children: ReactNode }) {
   const [activeQuest, setActiveQuest] = useState<Quest | null>(null)
-  const [recentQuests, setRecentQuests] = useState<Quest[]>([])
+  const [recentQuests] = useState<Quest[]>([])
   const [generating, setGenerating] = useState(false)
 
   async function generate() {

@@ -93,7 +93,7 @@ function readUtf8(view: DataView, offset: number, length: number): string {
   return new TextDecoder().decode(bytes)
 }
 
-function parseExifGps(view: DataView, offset: number, _size: number): { lat: number; lng: number } | undefined {
+function parseExifGps(_view: DataView, _offset: number, _size: number): { lat: number; lng: number } | undefined {
   // Full GPS EXIF parsing is non-trivial. For the MVP we use a simpler
   // heuristic — see lib/geo/distance.ts for the actual proximity check.
   // The real implementation would walk the IFD chain to the GPS IFD
