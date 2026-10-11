@@ -1,1 +1,64 @@
-# placeholder
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- VpnService — needed to intercept and block network traffic during a lockout -->
+    <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
+    <!-- Foreground service — required to keep the VpnService alive in the background -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Internet — for the localhost HTTP server -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Post notifications (Android 13+) — for the persistent lockout notification -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Receive boot — auto-resume lockout if phone reboots during a quest -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Wake lock — keep CPU alive for the lockout timer -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".CompanionApp"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.OpenQuest"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.OpenQuest">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- The foreground service that runs the VpnService for the lockout duration -->
+        <service
+            android:name=".LockoutService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-initiated network lockout for OpenQuest" />
+        </service>
+
+        <!-- The VpnService itself — Android requires this to be declared separately -->
+        <service
+            android:name=".LockoutVpnService"
+            android:exported="false"
+            android:permission="android.permission.BIND_VPN_SERVICE" />
+
+        <!-- Auto-resume lockout after reboot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

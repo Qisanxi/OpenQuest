@@ -1,1 +1,12 @@
-# placeholder
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="moss_700">#365029</color>
+    <color name="moss_500">#5f8247</color>
+    <color name="moss_300">#a8bb8e</color>
+    <color name="bark_900">#1f2f18</color>
+    <color name="bark_700">#55412e</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="red_500">#EF4444</color>
+    <color name="red_900">#7F1D1D</color>
+</resources>

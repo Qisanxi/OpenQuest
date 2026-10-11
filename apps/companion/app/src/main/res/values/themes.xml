@@ -1,1 +1,7 @@
-# placeholder
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.OpenQuest" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/moss_700</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+</resources>

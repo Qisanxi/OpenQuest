@@ -1,1 +1,10 @@
-# placeholder
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenQuest Companion</string>
+    <string name="lockout_channel_name">Lockout active</string>
+    <string name="lockout_channel_description">Shown when your phone is locked during an OpenQuest quest</string>
+    <string name="panic_channel_name">Panic unlock</string>
+    <string name="panic_channel_description">Alerts when the panic PIN is used or the lockout expires</string>
+    <string name="notification_lockout_title">🔒 Phone locked by OpenQuest</string>
+    <string name="notification_lockout_text">Other apps have no internet. Complete your quest to unlock.</string>
+</resources>

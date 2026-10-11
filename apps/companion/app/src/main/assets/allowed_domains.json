@@ -1,1 +1,20 @@
-# placeholder
+{
+  "allowed": [
+    "openquest.local",
+    "tile.openstreetmap.org",
+    "a.tile.openstreetmap.org",
+    "b.tile.openstreetmap.org",
+    "c.tile.openstreetmap.org",
+    "overpass-api.de",
+    "routing.openstreetmap.de",
+    "api.open-meteo.com"
+  ],
+  "notes": [
+    "Emergency calls (911/112/999/etc.) go through the cellular modem and are",
+    "unaffected by VpnService. They are always reachable during a lockout.",
+    "",
+    "This file is shipped as an asset but can be updated post-install. The",
+    "companion reads it on every lockout start, falling back to the hardcoded",
+    "list in Policy.kt if the file is missing or malformed."
+  ]
+}
