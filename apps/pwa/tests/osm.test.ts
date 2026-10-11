@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { haversine, isWithinRadius, bearing, compassDirection, estimatedWalkMinutes } from '../../src/lib/geo/distance'
+import { haversine, isWithinRadius, bearing, compassDirection, estimatedWalkMinutes } from '../src/lib/geo/distance'
 
 describe('geo/distance', () => {
   it('haversine NYC -> Boston is roughly 306 km', () => {

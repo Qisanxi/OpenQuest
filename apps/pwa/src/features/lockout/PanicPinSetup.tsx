@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { companionBridge } from './companionBridge.js'
 import { Button } from '../../components/Button.js'
 import { Card } from '../../components/Card.js'
 

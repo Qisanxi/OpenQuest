@@ -14,7 +14,7 @@
  *      should not break the game.
  */
 
-import { z, type ZodType } from 'zod'
+import type { ZodType } from 'zod'
 import { gemmaClient, type ChatMessage } from './client.js'
 import { repairJson } from '../ai/jsonRepair.js'
 

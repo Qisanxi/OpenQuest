@@ -13,9 +13,9 @@
  */
 
 import { z } from 'zod'
-import type { Quest, QuestCandidate, QuestContext, QuestGenerationResponse } from '@shared/quest'
+import type { Quest, QuestCandidate, QuestContext } from '@shared/quest'
 import { isQuestExpired } from '@shared/quest'
-import { gemmaClient, type ChatMessage } from '../../lib/gemma/client.js'
+import type { ChatMessage } from '../../lib/gemma/client.js'
 import { generateStructured } from '../../lib/gemma/structured.js'
 import { fetchPois } from '../../lib/osm/overpass.js'
 import { categoryMeta } from '../../lib/osm/categories.js'

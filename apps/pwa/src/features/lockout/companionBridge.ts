@@ -46,7 +46,6 @@ async function sign(payload: string, secret: string): Promise<string> {
 
 class CompanionBridge {
   async getStatus(): Promise<StatusResponse | null> {
-    const secret = getSecret()
     const port = getPort()
     try {
       const res = await fetch(`http://127.0.0.1:${port}/status`, {

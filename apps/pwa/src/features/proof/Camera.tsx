@@ -2,10 +2,8 @@ import { useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuests } from '../../app/QuestProvider.js'
 import { useLockout } from '../../app/LockoutProvider.js'
-import { questDb } from '../../lib/db/schema.js'
 import { judgeService } from './judgeService.js'
 import { Button } from '../../components/Button.js'
-import { Card } from '../../components/Card.js'
 
 export function Camera() {
   const { questId } = useParams<{ questId: string }>()
