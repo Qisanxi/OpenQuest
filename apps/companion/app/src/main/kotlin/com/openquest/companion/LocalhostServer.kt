@@ -36,7 +36,15 @@ class LocalhostServer(
         val uri = session.uri
         val method = session.method
 
-        return try {
+        // The PWA is served from a different origin and sends JSON POSTs, so the
+        // browser issues a CORS preflight (OPTIONS) first. Without answering it
+        // every /lock, /unlock and /panic call from the PWA fails before it is
+        // sent. Requests are authenticated by HMAC, not by origin.
+        if (method == Method.OPTIONS) {
+            return withCors(newFixedLengthResponse(Response.Status.NO_CONTENT, "text/plain", ""))
+        }
+
+        val response = try {
             when (uri to method) {
                 "/status" to Method.GET -> statusResponse()
                 "/lock" to Method.POST -> handleLock(session)
@@ -45,16 +53,31 @@ class LocalhostServer(
                 else -> newFixedLengthResponse(Response.Status.NOT_FOUND, "application/json", """{"error":"not_found"}""")
             }
         } catch (e: Exception) {
+            // Build the body with JSONObject so quotes in the message cannot break the JSON.
             newFixedLengthResponse(
                 Response.Status.INTERNAL_ERROR,
                 "application/json",
-                """{"error":"${e.message?.replace("\"', "")}"}""",
+                JSONObject().put("error", e.message ?: "internal_error").toString(),
             )
         }
+        return withCors(response)
     }
 
+    private fun withCors(response: Response): Response {
+        response.addHeader("Access-Control-Allow-Origin", "*")
+        response.addHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+        response.addHeader("Access-Control-Allow-Headers", "Content-Type")
+        // Chrome's Private Network Access preflight for public site -> 127.0.0.1
+        response.addHeader("Access-Control-Allow-Private-Network", "true")
+        return response
+    }
+
+    /** Reject requests older than 30 s (replay window) or timestamped in the future. */
+    private fun isStale(timestamp: Long): Boolean =
+        kotlin.math.abs(System.currentTimeMillis() - timestamp) > 30_000
+
     private fun statusResponse(): Response {
-        val state = LockoutState.current()
+        val state = LockoutState.snapshot()
         val json = JSONObject().apply {
             put("state", state.state.name.lowercase())
             put("lockedAt", state.lockedAt ?: JSONObject.NULL)
@@ -81,7 +104,7 @@ class LocalhostServer(
         }
 
         // Reject stale requests (>30s old)
-        if (System.currentTimeMillis() - timestamp > 30_000) {
+        if (isStale(timestamp)) {
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", """{"error":"stale_request"}""")
         }
 
@@ -95,9 +118,13 @@ class LocalhostServer(
         val timestamp = body.getLong("timestamp")
         val reason = body.getString("reason")
 
-        val payload = "$timestamp|$reason|unknown"
+        // Must match companionBridge.unlock(), which signs "<timestamp>|<reason>".
+        val payload = "$timestamp|$reason"
         if (!verifyHmac(payload, signature)) {
             return newFixedLengthResponse(Response.Status.UNAUTHORIZED, "application/json", """{"error":"bad_signature"}""")
+        }
+        if (isStale(timestamp)) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", """{"error":"stale_request"}""")
         }
 
         onUnlock()
@@ -113,6 +140,9 @@ class LocalhostServer(
         val payload = "$timestamp|$pinHash"
         if (!verifyHmac(payload, signature)) {
             return newFixedLengthResponse(Response.Status.UNAUTHORIZED, "application/json", """{"error":"bad_signature"}""")
+        }
+        if (isStale(timestamp)) {
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, "application/json", """{"error":"stale_request"}""")
         }
 
         val ok = onPanic(pinHash)
