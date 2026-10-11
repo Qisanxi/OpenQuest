@@ -1,1 +1,27 @@
-# placeholder
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "openquest-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2024-10-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "openquest",
+      "database_id": "REPLACE_WITH_YOUR_D1_ID"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PHOTOS",
+      "bucket_name": "openquest-photos"
+    }
+  ],
+  "vars": {
+    "GITHUB_CLIENT_ID": "",
+    "GITHUB_REDIRECT_URI": "https://openquest.local/callback"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
