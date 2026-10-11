@@ -6,11 +6,23 @@
     color-scheme: light dark;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   html,
   body,
   #root {
     height: 100%;
     margin: 0;
+  }
+
+  a,
+  button,
+  input {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {

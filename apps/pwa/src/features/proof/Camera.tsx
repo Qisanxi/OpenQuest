@@ -89,7 +89,7 @@ export function Camera() {
       {!captured && (
         <>
           <div className="overflow-hidden rounded-xl bg-black">
-            <video ref={videoRef} className="w-full" playsInline />
+            <video ref={videoRef} className="max-h-[70dvh] w-full object-contain" playsInline />
           </div>
           <Button variant="primary" className="w-full" onClick={startCamera}>
             Start camera

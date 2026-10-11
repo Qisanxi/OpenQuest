@@ -33,7 +33,7 @@ export function LocationPicker() {
           maxLength={PLACE_NAME_MAX}
           placeholder="e.g. Brooklyn, or 'near the river'"
           onChange={(e) => setPlace(sanitizePlaceName(e.target.value))}
-          className="w-full rounded-lg border border-bark-200 bg-white px-3 py-2 text-sm dark:border-bark-700 dark:bg-bark-900"
+          className="w-full rounded-lg border border-bark-200 bg-white min-h-11 px-3 py-2 text-base sm:text-sm dark:border-bark-700 dark:bg-bark-900"
         />
         <div className="mt-1 text-right text-xs text-bark-500">
           {place.length}/{PLACE_NAME_MAX}
@@ -44,7 +44,7 @@ export function LocationPicker() {
             <button
               key={p}
               onClick={() => setPlace(p)}
-              className="rounded-full bg-bark-100 px-3 py-1 text-xs text-bark-800 hover:bg-bark-200 dark:bg-bark-800 dark:text-bark-100"
+              className="rounded-full bg-bark-100 min-h-9 px-3 py-1.5 text-sm text-bark-800 hover:bg-bark-200 dark:bg-bark-800 dark:text-bark-100"
             >
               {p}
             </button>
@@ -66,7 +66,7 @@ export function LocationPicker() {
 
       <p className="text-xs text-bark-500">
         Why no GPS? OpenQuest fetches nearby POIs from OpenStreetMap to generate
-        quests — but the *place name* you type here is just for the LLM's prompt
+        quests — but the place name you type here is just for the LLM's prompt
         flavour. Your actual coordinates are used only in-memory for proximity
         checks and never stored or uploaded.
       </p>
