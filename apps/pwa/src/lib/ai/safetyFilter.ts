@@ -24,25 +24,25 @@ export interface SafetyResult {
 
 const UNSAFE_PATTERNS: ReadonlyArray<{ pattern: RegExp; reason: string }> = [
   // Trespassing
-  { pattern: /\b(climb over|jump the fence|private property|enter(?:ing)? (?:the )?yard|trespass)/i, reason: 'trespassing' },
+  { pattern: /\b(?:climb over|jump the fence|private property|enter(?:ing)? (?:the )?yard|trespass(?:es|ed|ing)?)\b/i, reason: 'trespassing' },
   // Traffic
-  { pattern: /\b(stand in (?:the )?road|cross the highway|walk on (?:the )?freeway|interstate)/i, reason: 'traffic_danger' },
+  { pattern: /\b(?:stand in (?:the )?road|cross the highway|walk on (?:the )?freeway|interstate)\b/i, reason: 'traffic_danger' },
   // Water
-  { pattern: /\b(swim|wade|cross the river|enter(?:ing)? the water|dive in)/i, reason: 'water_hazard' },
+  { pattern: /\b(?:swim(?:s|ming)?|swam|swimmers?|wad(?:e|es|ed|ing)|cross(?:es|ed|ing)? the river|enter(?:s|ed|ing)? the water|div(?:e|es|ed|ing) in)\b/i, reason: 'water_hazard' },
   // Heights
-  { pattern: /\b(climb(?:ing)?|scale(?:ing)?|ledge|rooftop|parapet|balcony railing)/i, reason: 'height_hazard' },
+  { pattern: /\b(?:climb(?:s|ed|ing)?|scal(?:e|es|ed|ing)|ledges?|rooftops?|parapets?|balcony railings?)\b/i, reason: 'height_hazard' },
   // Animals
-  { pattern: /\b(catch(?:ing)?|pet(?:ting)?|feed the|approach the (?:deer|dog|cat|bird|raccoon|squirrel))/i, reason: 'animal_handling' },
+  { pattern: /\b(?:catch(?:es|ing)?|caught|pet|pets|petting|feed(?:s|ing)? the|approach(?:es|ed|ing)? the (?:deer|dog|cat|bird|raccoon|squirrel))\b/i, reason: 'animal_handling' },
   // Foraging
-  { pattern: /\b(eat|taste|harvest|pick and eat|consume|ingest)/i, reason: 'foraging' },
+  { pattern: /\b(?:eat|eats|eating|ate|tast(?:e|es|ed|ing)|harvest(?:s|ed|ing)?|pick(?:s|ed|ing)? and eat|consum(?:e|es|ed|ing)|ingest(?:s|ed|ing)?)\b/i, reason: 'foraging' },
   // Strangers
-  { pattern: /\b(ask a stranger|follow someone|photograph (?:a|the) person|knock on doors)/i, reason: 'stranger_danger' },
+  { pattern: /\b(?:ask a stranger|follow someone|photograph (?:a|the) person|knock on doors)\b/i, reason: 'stranger_danger' },
   // Abstract / non-physical
   { pattern: /\b(feel(?:ing)? the|essence|spirit of|aura of|vibe of|shimmer|whisper of)/i, reason: 'abstract_unverifiable' },
   // Self-harm
-  { pattern: /\b(cut yourself|hurt yourself|self[- ]harm)/i, reason: 'self_harm' },
+  { pattern: /\b(?:cut yourself|hurt yourself|self[- ]harm)\b/i, reason: 'self_harm' },
   // Illegal
-  { pattern: /\b(steal|shoplift|vandalize|break in|trespass)/i, reason: 'illegal' },
+  { pattern: /\b(?:steal|steals|stealing|stole|shoplift(?:s|ed|ing)?|vandali[sz](?:e|es|ed|ing)|break(?:s|ing)? in|broke in|trespass(?:es|ed|ing)?)\b/i, reason: 'illegal' },
 ]
 
 const ABSTRACT_KEYWORDS = [

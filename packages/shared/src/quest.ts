@@ -104,6 +104,7 @@ export function sanitizePlaceName(input: string): string {
 }
 
 export function isQuestExpired(quest: Quest, now: number = Date.now()): boolean {
-  if (quest.status !== 'active' || !quest.acceptedAt) return false
+  // A failed attempt keeps the phone locked and the timer running, so it can expire too.
+  if ((quest.status !== 'active' && quest.status !== 'failed') || !quest.acceptedAt) return false
   return now - quest.acceptedAt > quest.durationMinutes * 60 * 1000
 }
