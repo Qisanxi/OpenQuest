@@ -24,6 +24,19 @@ import type { Env } from './index.js'
 
 export const mailboxRoutes = new Hono<{ Bindings: Env }>()
 
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024
+const CLAIM_TIMEOUT_MS = 2 * 60 * 1000
+
+async function sessionUserId(db: Env['DB'], cookieHeader: string | undefined): Promise<number | null> {
+  const m = cookieHeader?.match(/(?:^|;\s*)openquest_session=([^;]+)/)
+  if (!m) return null
+  const row = await db
+    .prepare('SELECT github_id FROM sessions WHERE id = ? AND expires_at > ?')
+    .bind(m[1], Date.now())
+    .first<{ github_id: number }>()
+  return row?.github_id ?? null
+}
+
 interface PendingFind {
   id: string
   questId: string
@@ -60,6 +73,16 @@ mailboxRoutes.post('/find', async (c) => {
   const category = formData.get('category') as string
 
   if (!questId || !(photo instanceof File)) return c.json({ error: 'missing_fields' }, 400)
+  // NOT NULL columns: reject here with a 400 instead of a D1 constraint 500.
+  if (!questPrompt || !verificationHint || !placeName || !category) {
+    return c.json({ error: 'missing_fields' }, 400)
+  }
+  if (photo.size > MAX_PHOTO_BYTES) return c.json({ error: 'photo_too_large' }, 413)
+  if (photo.type && photo.type !== 'image/jpeg') return c.json({ error: 'unsupported_type' }, 415)
+
+  // Attribute the find to the signed-in user (if any) so /account/delete can
+  // actually purge it; user_id was never set before, so deletion removed nothing.
+  const userId = await sessionUserId(c.env.DB, c.req.header('Cookie'))
 
   const findId = crypto.randomUUID()
   const photoKey = `finds/${findId}.jpg`
@@ -71,9 +94,9 @@ mailboxRoutes.post('/find', async (c) => {
 
   // Insert pending find row
   await c.env.DB.prepare(
-    `INSERT INTO finds (id, quest_id, photo_key, quest_prompt, verification_hint, place_name, category, status, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
-  ).bind(findId, questId, photoKey, questPrompt, verificationHint, placeName, category, Date.now()).run()
+    `INSERT INTO finds (id, quest_id, user_id, photo_key, quest_prompt, verification_hint, place_name, category, status, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+  ).bind(findId, questId, userId, photoKey, questPrompt, verificationHint, placeName, category, Date.now()).run()
 
   return c.json({ findId })
 })
@@ -83,12 +106,19 @@ mailboxRoutes.post('/find', async (c) => {
  * Marks it as 'in_progress' so other laptops don't pick it up.
  */
 mailboxRoutes.get('/pending', async (c) => {
-  // Atomically claim the oldest pending find
+  // Atomically claim the oldest pending find. A claim that was never answered
+  // (laptop closed / crashed mid-judge) is handed out again after
+  // CLAIM_TIMEOUT_MS instead of leaving the phone waiting forever.
+  const now = Date.now()
   const find = await c.env.DB.prepare(
     `UPDATE finds SET status = 'in_progress', claimed_at = ?
-     WHERE id = (SELECT id FROM finds WHERE status = 'pending' ORDER BY created_at ASC LIMIT 1)
+     WHERE id = (
+       SELECT id FROM finds
+       WHERE status = 'pending' OR (status = 'in_progress' AND claimed_at < ?)
+       ORDER BY created_at ASC LIMIT 1
+     )
      RETURNING *`,
-  ).bind(Date.now()).first<PendingFind>()
+  ).bind(now, now - CLAIM_TIMEOUT_MS).first<PendingFind>()
 
   if (!find) return c.json({ find: null })
 
@@ -129,18 +159,26 @@ mailboxRoutes.post('/result', async (c) => {
     return c.json({ error: 'missing_fields' }, 400)
   }
 
-  await c.env.DB.prepare(
+  // D1 cannot bind booleans (D1_TYPE_ERROR): store 0/1. Observations may
+  // arrive as an array or an already-serialised JSON string.
+  const observations =
+    typeof body.observations === 'string' ? body.observations : JSON.stringify(body.observations ?? [])
+
+  // Only a find that is currently claimed can be answered, so a result can't be
+  // overwritten or forged after the fact for a find that was already judged.
+  const res = await c.env.DB.prepare(
     `UPDATE finds SET status = ?, passed = ?, reason = ?, observations = ?, judged_at = ?
-     WHERE id = ?`,
+     WHERE id = ? AND status = 'in_progress'`,
   ).bind(
     body.passed ? 'passed' : 'failed',
-    body.passed,
+    body.passed ? 1 : 0,
     body.reason ?? '',
-    body.observations ?? '[]',
+    observations,
     Date.now(),
     body.id,
   ).run()
 
+  if (!res.meta.changes) return c.json({ error: 'not_in_progress' }, 409)
   return c.json({ ok: true })
 })
 
@@ -148,14 +186,22 @@ mailboxRoutes.post('/result', async (c) => {
  * Phone polls for the result of a specific find.
  */
 mailboxRoutes.get('/result', async (c) => {
+  // Prefer findId (returned by POST /find): looking up by questId alone returns
+  // the previous attempt's verdict when the user retries after a failure.
+  const findId = c.req.query('findId')
   const questId = c.req.query('questId')
-  if (!questId) return c.json({ error: 'missing_questId' }, 400)
+  if (!findId && !questId) return c.json({ error: 'missing_findId' }, 400)
 
-  const result = await c.env.DB.prepare(
-    `SELECT id, quest_id, passed, reason, observations, judged_at
-     FROM finds WHERE quest_id = ? AND status IN ('passed', 'failed')
-     ORDER BY judged_at DESC LIMIT 1`,
-  ).bind(questId).first<FindResult>()
+  const result = findId
+    ? await c.env.DB.prepare(
+        `SELECT id, quest_id, passed, reason, observations, judged_at
+         FROM finds WHERE id = ? AND status IN ('passed', 'failed')`,
+      ).bind(findId).first<FindResult>()
+    : await c.env.DB.prepare(
+        `SELECT id, quest_id, passed, reason, observations, judged_at
+         FROM finds WHERE quest_id = ? AND status IN ('passed', 'failed')
+         ORDER BY judged_at DESC LIMIT 1`,
+      ).bind(questId).first<FindResult>()
 
   if (!result) return c.json({ result: null })
   return c.json({ result })
