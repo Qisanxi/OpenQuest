@@ -1,1 +1,7 @@
-# placeholder
+node_modules/
+dist/
+*.local
+.env
+.env.local
+.env.*.local
+dev-dist/

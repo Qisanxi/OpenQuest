@@ -1,1 +1,5 @@
-# placeholder
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+}
