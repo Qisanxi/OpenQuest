@@ -3,6 +3,7 @@ package com.openquest.companion
 import android.app.PendingIntent
 import android.content.Intent
 import android.net.VpnService
+import android.os.IBinder
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
 import java.io.FileInputStream
