@@ -55,22 +55,13 @@ An on-device AI writes a short outdoor quest, your phone locks until you've done
 **Try it:** https://openquest.example.com  ·  **Android companion:** https://github.com/Qisanxi/OpenQuest/releases/latest
 -->
 
-## 🎬 video walkthrough
-
-> 🚧 **video links.** The shot list is in [https://youtu.be/estBmcgGAJw).
-
-<!--
-GitHub strips <iframe>, so use a clickable thumbnail for YouTube/Vimeo:
-
-[![Watch the OpenQuest demo](docs/images/demo-thumb.png)](https://youtu.be/VIDEO_ID)
-
-Or drag-and-drop an .mp4 (under 10 MB on free plans) into the README editor on github.com;
-GitHub uploads it and inserts a playable <video> link here.
--->
+## 🎬 Demo video
 
 <div align="center">
 
-<a href="#-demo-video"><img src="docs/images/demo-placeholder.png" width="480" alt="Demo video placeholder"></a>
+[![Watch the OpenQuest demo on YouTube](https://img.youtube.com/vi/estBmcgGAJw/hqdefault.jpg)](https://youtu.be/estBmcgGAJw)
+
+▶️ **[Watch the demo on YouTube](https://youtu.be/estBmcgGAJw)**
 
 </div>
 
@@ -288,7 +279,7 @@ OpenQuest/
 │   ├── companion/    # Android companion (localhost API + VpnService)
 │   └── worker/       # Optional Cloudflare Worker mailbox
 ├── packages/shared/  # Types and rules shared across apps
-├── docs/             # Architecture, lockout protocol, safety, demo script
+├── docs/             # Architecture, lockout protocol, safety
 ├── scripts/          # dev / build / release helpers
 └── .github/workflows # CI: typecheck, tests, PWA build, worker dry-run, APK
 ```
