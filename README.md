@@ -55,9 +55,9 @@ An on-device AI writes a short outdoor quest, your phone locks until you've done
 **Try it:** https://openquest.example.com  ·  **Android companion:** https://github.com/Qisanxi/OpenQuest/releases/latest
 -->
 
-## 🎬 Demo video
+## 🎬 video walkthrough
 
-> 🚧 **Coming soon.** The shot list is in [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
+> 🚧 **video links.** The shot list is in [https://youtu.be/estBmcgGAJw).
 
 <!--
 GitHub strips <iframe>, so use a clickable thumbnail for YouTube/Vimeo:
