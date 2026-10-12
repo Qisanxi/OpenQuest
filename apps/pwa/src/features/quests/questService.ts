@@ -49,7 +49,7 @@ class QuestService {
     })
 
     if (candidates.length === 0) {
-      return this.fallbackQuest(context)
+      return this.fallbackQuest(context, undefined, location)
     }
 
     const recentQuests = await questDb.listQuests(10)
@@ -63,12 +63,12 @@ class QuestService {
     const generated = await generateStructured(QuestResponseSchema, messages)
 
     if (!generated) {
-      return this.fallbackQuest(context, candidates[0])
+      return this.fallbackQuest(context, candidates[0], location)
     }
 
     const safety = checkQuest(generated.prompt)
     if (!safety.safe) {
-      return this.fallbackQuest(context, candidates[0])
+      return this.fallbackQuest(context, candidates[0], location)
     }
 
     const candidate = candidates.find((c) => c.osmId === generated.placeId)
@@ -111,7 +111,10 @@ class QuestService {
   async submitPhoto(questId: string, photo: Blob): Promise<Quest> {
     const quest = await questDb.getQuest(questId)
     if (!quest) throw new Error(`Quest ${questId} not found`)
-    if (quest.status !== 'active') throw new Error(`Quest is ${quest.status}, cannot submit`)
+    // 'failed' = the judge rejected an earlier photo; the user may retry until the timer ends.
+    if (quest.status !== 'active' && quest.status !== 'failed') {
+      throw new Error(`Quest is ${quest.status}, cannot submit`)
+    }
 
     await questDb.putPhoto(questId, photo)
 
@@ -152,8 +155,8 @@ class QuestService {
   }
 
   async expireOldQuests(now: number = Date.now()): Promise<void> {
-    const active = await questDb.listActive()
-    for (const quest of active) {
+    const open = await questDb.listOpen()
+    for (const quest of open) {
       if (isQuestExpired(quest, now)) {
         quest.status = 'expired'
         await questDb.putQuest(quest)
@@ -161,11 +164,17 @@ class QuestService {
     }
   }
 
-  private async fallbackQuest(context: QuestContext, candidate?: QuestCandidate): Promise<Quest> {
+  private async fallbackQuest(
+    context: QuestContext,
+    candidate: QuestCandidate | undefined,
+    origin: { lat: number; lng: number },
+  ): Promise<Quest> {
     const template = FALLBACK_QUESTS[Math.floor(Math.random() * FALLBACK_QUESTS.length)]
     const meta = categoryMeta(template.category)
-    const lat = candidate?.lat ?? 0
-    const lng = candidate?.lng ?? 0
+    // With no POI, target the user's own position rather than (0,0) in the
+    // Atlantic, which no real photo could ever be within range of.
+    const lat = candidate?.lat ?? origin.lat
+    const lng = candidate?.lng ?? origin.lng
     const placeName = candidate?.name ?? 'a nearby location'
 
     const quest: Quest = {

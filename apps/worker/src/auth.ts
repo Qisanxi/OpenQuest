@@ -24,19 +24,31 @@ import type { Env } from './index.js'
 
 export const authRoutes = new Hono<{ Bindings: Env }>()
 
+const STATE_COOKIE = 'openquest_oauth_state'
+
 authRoutes.get('/login', (c) => {
+  const state = crypto.randomUUID()
   const params = new URLSearchParams({
     client_id: c.env.GITHUB_CLIENT_ID,
     redirect_uri: c.env.GITHUB_REDIRECT_URI,
     scope: 'read:user',
-    state: crypto.randomUUID(),
+    state,
   })
+  // Bind the OAuth round-trip to this browser (CSRF protection). Lax, not
+  // Strict: the cookie must be sent on the top-level redirect back from GitHub.
+  c.header('Set-Cookie', `${STATE_COOKIE}=${state}; HttpOnly; Secure; SameSite=Lax; Max-Age=600; Path=/auth`)
   return c.redirect(`https://github.com/login/oauth/authorize?${params.toString()}`)
 })
 
 authRoutes.get('/callback', async (c) => {
   const code = c.req.query('code')
   if (!code) return c.json({ error: 'missing code' }, 400)
+
+  const state = c.req.query('state')
+  const expected = getCookie(c.req.header('Cookie'), STATE_COOKIE)
+  if (!state || !expected || state !== expected) {
+    return c.json({ error: 'bad_state' }, 400)
+  }
 
   // Exchange code for access token
   const tokenRes = await fetch('https://github.com/login/oauth/access_token', {

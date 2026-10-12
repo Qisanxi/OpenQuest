@@ -25,13 +25,21 @@ payload = "<timestamp>|<durationMin>|<questId>|<questSummary>"
 signature = HMAC-SHA256(payload, pairingSecret)  // hex-encoded
 ```
 
+Payloads per endpoint (the PWA and companion must agree byte for byte):
+
+| Endpoint | Signed payload                                        |
+|----------|-------------------------------------------------------|
+| `/lock`  | `<timestamp>\|<durationMin>\|<questId>\|<questSummary>` |
+| `/unlock`| `<timestamp>\|<reason>`                               |
+| `/panic` | `<timestamp>\|<pinHash>`                              |
+
 The companion verifies with constant-time comparison to prevent timing
 attacks.
 
 ### Replay protection
 
 Each request includes a `timestamp` field. The companion rejects
-requests older than 30 seconds. (We don't use nonces — they'd require
+requests more than 30 seconds away from its own clock (older or future-dated). (We don't use nonces — they'd require
 state, and 30s is a tight enough window.)
 
 ## Endpoints
@@ -158,6 +166,13 @@ Emergency calls (911/112/999/etc.) go through the cellular modem and are
 | Battery dies during lockout                | Phone reboots without lockout (BootReceiver is a stub in MVP)            |
 
 ## Security considerations
+
+### CORS
+
+The PWA is served from another origin, so browsers send an `OPTIONS`
+preflight before each JSON `POST`. The companion answers it and adds
+`Access-Control-Allow-Origin: *` plus `Access-Control-Allow-Private-Network`.
+Origin is not the security boundary — the HMAC signature is.
 
 ### Why not TLS?
 

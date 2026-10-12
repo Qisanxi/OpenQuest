@@ -19,7 +19,7 @@
   ],
   "vars": {
     "GITHUB_CLIENT_ID": "",
-    "GITHUB_REDIRECT_URI": "https://openquest.local/callback"
+    "GITHUB_REDIRECT_URI": "https://openquest.local/auth/callback"
   },
   "observability": {
     "enabled": true

@@ -11,9 +11,6 @@
  * down the existing worker before spawning a fresh one.
  */
 
-import { Worker } from 'worker_threads'
-// Note: in the browser, this resolves to the Web Worker constructor via
-// Vite's worker bundling. The `worker_threads` import is a type-only alias.
 import { pickModel, type ModelKey } from './models.js'
 
 export type { GemmaStatus } from './gemma.worker.js'
@@ -31,12 +28,27 @@ class GemmaClient {
   private progressListeners = new Set<Listener<number>>()
   private pending = new Map<string, { resolve: (v: string) => void; reject: (e: Error) => void; tokens: string[] }>()
 
-  async load(modelKey?: ModelKey) {
+  /** Resolves once the model is loaded and ready; rejects if loading fails. */
+  async load(modelKey?: ModelKey): Promise<void> {
     const key = modelKey ?? pickModel()
     if (this.worker) this.worker.terminate()
-    this.worker = new Worker(new URL('./gemma.worker.ts', import.meta.url), { type: 'module' })
-    this.worker.onmessage = (e: MessageEvent) => this.onMessage(e.data)
-    this.worker.postMessage({ type: 'load', model: key })
+    const worker = new Worker(new URL('./gemma.worker.ts', import.meta.url), { type: 'module' })
+    this.worker = worker
+    worker.onmessage = (e: MessageEvent) => this.onMessage(e.data)
+
+    await new Promise<void>((resolve, reject) => {
+      const off = this.onStatus((s: string) => {
+        if (s === 'ready') { off(); resolve() }
+        else if (s === 'error') { off(); reject(new Error('Gemma failed to load')) }
+      })
+      worker.onerror = (e) => { off(); reject(new Error(e.message || 'Worker crashed')) }
+      worker.postMessage({ type: 'load', model: key })
+    })
+  }
+
+  private requireWorker(): Worker {
+    if (!this.worker) throw new Error('Gemma is not loaded yet — call load() first')
+    return this.worker
   }
 
   async *generate(messages: ChatMessage[]): AsyncIterable<string> {
@@ -51,7 +63,7 @@ class GemmaClient {
       tokens: queue,
     })
 
-    this.worker!.postMessage({ type: 'generate', id, messages })
+    this.requireWorker().postMessage({ type: 'generate', id, messages })
 
     while (!done) {
       if (queue.length > 0) {
@@ -68,7 +80,7 @@ class GemmaClient {
     const id = crypto.randomUUID()
     return new Promise<string>((resolve, reject) => {
       this.pending.set(id, { resolve, reject, tokens: [] })
-      this.worker!.postMessage({ type: 'judge', id, messages, image })
+      this.requireWorker().postMessage({ type: 'judge', id, messages, image })
     })
   }
 

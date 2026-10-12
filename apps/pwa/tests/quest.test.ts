@@ -55,4 +55,29 @@ describe('safetyFilter', () => {
     expect(result.safe).toBe(false)
     expect(result.reason).toBe('abstract_unverifiable')
   })
+
+  it('does not reject harmless words that merely start like a banned one', () => {
+    expect(checkQuest('Photograph a single petal on a flower in the garden.').safe).toBe(true)
+    expect(checkQuest('Find the bakery and photograph its sign next to the eatery.').safe).toBe(true)
+  })
+
+  it('still rejects the banned verbs as whole words', () => {
+    expect(checkQuest('Pet the dog by the fountain.').safe).toBe(false)
+    expect(checkQuest('Eat a berry from the bush.').safe).toBe(false)
+  })
+
+  it.each([
+    'Climbs the wall behind the cafe.',
+    'Take a photo of the swimmers in the pond.',
+    'Someone eats a berry from the bush.',
+    'She climbed a tree near the gate.',
+    'Scales the fence at the park.',
+    'Pets the cat outside the shop.',
+    'He swims across the lake.',
+    'Taste the soup at the stall.',
+    'Harvest apples from the orchard.',
+    'Stood on the rooftops.',
+  ])('keeps rejecting inflected form: %s', (text) => {
+    expect(checkQuest(text).safe).toBe(false)
+  })
 })

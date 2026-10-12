@@ -66,6 +66,16 @@ export const questDb = {
     return d.getAllFromIndex('quests', 'status', 'active') as Promise<Quest[]>
   },
 
+  /** Quests still in play: accepted and not finished (a failed attempt may be retried). */
+  async listOpen(): Promise<Quest[]> {
+    const d = await db()
+    const [active, failed] = await Promise.all([
+      d.getAllFromIndex('quests', 'status', 'active'),
+      d.getAllFromIndex('quests', 'status', 'failed'),
+    ])
+    return [...active, ...failed] as Quest[]
+  },
+
   async putPhoto(questId: string, blob: Blob) {
     const d = await db()
     await d.put('photos', blob, questId)

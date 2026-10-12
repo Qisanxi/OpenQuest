@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AppShell } from './app/AppShell.js'
+import { AppRoutes } from './app/router.js'
 import { GemmaProvider } from './app/GemmaProvider.js'
 import { LockoutProvider } from './app/LockoutProvider.js'
 import { QuestProvider } from './app/QuestProvider.js'
@@ -16,7 +17,9 @@ createRoot(root).render(
       <GemmaProvider>
         <LockoutProvider>
           <QuestProvider>
-            <AppShell />
+            <AppShell>
+              <AppRoutes />
+            </AppShell>
           </QuestProvider>
         </LockoutProvider>
       </GemmaProvider>

@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # onnxruntime-node's postinstall downloads native binaries the browser
+      # build never uses; skip install scripts.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm run typecheck
+      - run: pnpm run test
+      - run: pnpm run build:pwa
+      - run: pnpm audit --prod
+
+  worker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm --filter @openquest/worker exec wrangler deploy --dry-run
+
+  companion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      # AGP 8.7 needs Gradle >= 8.9 and the repo has no wrapper, so pin one.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+      # ubuntu-latest already ships an Android SDK ($ANDROID_HOME); we only
+      # need the licences and the platform/build-tools the app targets.
+      - name: Prepare Android SDK
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-35" "build-tools;35.0.0"
+      - name: Assemble debug APK
+        working-directory: apps/companion
+        run: |
+          set +e
+          gradle --no-daemon --stacktrace assembleDebug 2>&1 | tee build.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -ne 0 ]; then
+            # Surface the real errors as annotations (job logs can be hard to fetch).
+            { grep -E "^e: " build.log | head -30
+              grep -A12 "What went wrong" build.log | head -20; } \
+              | while IFS= read -r line; do echo "::error::${line:0:900}"; done
+          fi
+          exit $status
