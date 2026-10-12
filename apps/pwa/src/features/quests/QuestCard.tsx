@@ -15,11 +15,12 @@ export function QuestCard() {
   const { activeQuest, accept, abandon } = useQuests()
   const { lock, state: lockoutState } = useLockout()
   const [quest, setQuest] = useState<Quest | null>(activeQuest)
+  const [notFound, setNotFound] = useState(false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
 
   useEffect(() => {
     if (questId && (!quest || quest.id !== questId)) {
-      questDb.getQuest(questId).then((q) => q && setQuest(q))
+      questDb.getQuest(questId).then((q) => (q ? setQuest(q) : setNotFound(true)))
     }
   }, [questId, quest])
 
@@ -34,6 +35,18 @@ export function QuestCard() {
   }, [])
 
   if (!quest) {
+    if (notFound) {
+      return (
+        <Card>
+          <p className="mb-3 text-sm text-bark-700 dark:text-bark-200">
+            We couldn't find that quest. It may have been abandoned or cleared from this device.
+          </p>
+          <Button variant="primary" className="w-full" onClick={() => navigate('/quests')}>
+            Back to quests
+          </Button>
+        </Card>
+      )
+    }
     return <div className="p-4 text-sm text-bark-600">Loading quest…</div>
   }
 
