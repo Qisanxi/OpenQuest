@@ -277,17 +277,7 @@ gradle assembleDebug     # APK: app/build/outputs/apk/debug/app-debug.apk
 
 See [`docs/ANDROID_BUILD.md`](docs/ANDROID_BUILD.md) to sideload and pair it.
 
-### Deploy your own (Vercel)
 
-The PWA is a static site, so it deploys anywhere. [`vercel.json`](vercel.json) already holds the build settings, the single-page-app fallback (so `/quests` survives a refresh) and the service-worker cache headers.
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FQisanxi%2FOpenQuest)
-
-1. Import the repository in Vercel and leave the framework preset on **Other**. Everything else comes from `vercel.json`.
-2. Deploy. HTTPS is required for the camera, geolocation and service worker, and Vercel provides it.
-3. Test in a recent desktop **Chrome or Edge** with WebGPU first. The first model load downloads about 2.6–3.4 GB from Hugging Face, so use Wi-Fi.
-
-The Cloudflare Worker and Android companion are separate and optional; the web app works without them (soft-lock mode).
 
 ## 📂 Project structure
 
@@ -303,31 +293,9 @@ OpenQuest/
 └── .github/workflows # CI: typecheck, tests, PWA build, worker dry-run, APK
 ```
 
-## 🚦 Status and known limitations
-
-OpenQuest is **pre-alpha**. Be honest with yourself about what is verified:
-
-| Area | State |
-|---|---|
-| PWA UI, quest lifecycle, safety filter, tests | ✅ Typechecked, 39 unit tests, builds, CI-checked |
-| Android companion | ✅ Builds a debug APK in CI. ⚠️ Not yet tested on a physical device |
-| On-device Gemma (generation + judging) | ⚠️ Wired to the real Transformers.js API but not yet verified end to end on real hardware |
-| Cloudflare Worker | ⚠️ Typechecked and dry-run deployed. Not tested against a real D1 or GitHub OAuth app |
-| Real lockout | ⚠️ See the companion items in the roadmap below |
-| Icons | ⚠️ Placeholder artwork |
-
 ## 🗺️ Roadmap
 
 Planned and **not yet built**. Contributions welcome on any of these.
-
-**Make the lockout real**
-- [ ] Start the localhost server from the companion app (`LocalhostServer` exists but nothing instantiates it)
-- [ ] Ask for VPN consent with `VpnService.prepare()` (today it is only a comment)
-- [ ] Make the allow-list reachable during a lockout: every route, including the allow-listed IPs, currently points into the tunnel
-- [ ] Harden the panic PIN: limit attempts and bind it to the Keystore (today it is SHA-256 with a device salt, which a 4-digit PIN can't resist if the store leaks)
-- [ ] Verify the foreground-service declarations on current Android versions
-- [ ] Commit the Gradle wrapper so `./gradlew` works
-
 **Prove the AI path**
 - [ ] End-to-end test of Gemma generation and judging on real phones and laptops
 - [ ] Graceful fallback when WebGPU is unavailable (field mode by default)
