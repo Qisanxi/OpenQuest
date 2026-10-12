@@ -279,6 +279,18 @@ gradle assembleDebug     # APK: app/build/outputs/apk/debug/app-debug.apk
 
 See [`docs/ANDROID_BUILD.md`](docs/ANDROID_BUILD.md) to sideload and pair it.
 
+### Deploy your own (Vercel)
+
+The PWA is a static site, so it deploys anywhere. [`vercel.json`](vercel.json) already holds the build settings, the single-page-app fallback (so `/quests` survives a refresh) and the service-worker cache headers.
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FQisanxi%2FOpenQuest)
+
+1. Import the repository in Vercel and leave the framework preset on **Other**. Everything else comes from `vercel.json`.
+2. Deploy. HTTPS is required for the camera, geolocation and service worker, and Vercel provides it.
+3. Test in a recent desktop **Chrome or Edge** with WebGPU first. The first model load downloads about 2.6–3.4 GB from Hugging Face, so use Wi-Fi.
+
+The Cloudflare Worker and Android companion are separate and optional; the web app works without them (soft-lock mode).
+
 ## 📂 Project structure
 
 ```text
