@@ -126,12 +126,14 @@ self.onmessage = (e: MessageEvent<WorkerInbound>) => {
       else if (msg.type === 'generate') await run(msg.id, msg.messages, null)
       else if (msg.type === 'judge') await run(msg.id, msg.messages, msg.image)
     } catch (err) {
-      postStatus('error')
+      // Message first: the client rejects as soon as it sees status 'error',
+      // so the reason must already have arrived.
       postMessage({
         type: 'error',
         id: msg.type === 'load' ? undefined : msg.id,
         message: err instanceof Error ? err.message : String(err),
       })
+      postStatus('error')
     }
   })
 }

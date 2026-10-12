@@ -32,6 +32,7 @@ class GemmaClient {
   async load(modelKey?: ModelKey): Promise<void> {
     const key = modelKey ?? pickModel()
     if (this.worker) this.worker.terminate()
+    this.lastLoadError = null
     const worker = new Worker(new URL('./gemma.worker.ts', import.meta.url), { type: 'module' })
     this.worker = worker
     worker.onmessage = (e: MessageEvent) => this.onMessage(e.data)
@@ -39,7 +40,7 @@ class GemmaClient {
     await new Promise<void>((resolve, reject) => {
       const off = this.onStatus((s: string) => {
         if (s === 'ready') { off(); resolve() }
-        else if (s === 'error') { off(); reject(new Error('Gemma failed to load')) }
+        else if (s === 'error') { off(); reject(new Error(this.lastLoadError ?? 'Gemma failed to load')) }
       })
       worker.onerror = (e) => { off(); reject(new Error(e.message || 'Worker crashed')) }
       worker.postMessage({ type: 'load', model: key })
@@ -94,6 +95,8 @@ class GemmaClient {
     return () => this.progressListeners.delete(cb)
   }
 
+  private lastLoadError: string | null = null
+
   private onMessage(data: any) {
     switch (data.type) {
       case 'status':
@@ -114,6 +117,7 @@ class GemmaClient {
         break
       }
       case 'error': {
+        if (!data.id) this.lastLoadError = data.message
         const p = this.pending.get(data.id)
         if (p) {
           p.reject(new Error(data.message))
