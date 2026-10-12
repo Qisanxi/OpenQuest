@@ -37,19 +37,17 @@ An on-device AI writes a short outdoor quest, your phone locks until you've done
 |:---:|:---:|:---:|
 | <img src="docs/images/home-mobile.png" width="240" alt="OpenQuest home page on a phone"> | <img src="docs/images/quest-active-mobile.png" width="240" alt="An active quest with distance and direction"> | <img src="docs/images/location-mobile.png" width="240" alt="The location hint screen"> |
 
-<img src="docs/images/home-desktop-dark.png" width="640" alt="OpenQuest home page on desktop, dark mode">
-
 *Mobile-first and responsive from 320 px to desktop. Quests in these screenshots are sample data; on-device generation needs WebGPU.*
 
 </div>
 
 ## 🌐 Live demo
 
-> 🚧 **Coming soon.** There is no public deployment yet.
+> 🚀 **Try it:** the web app is live at **[openquest-pi.vercel.app](https://openquest-pi.vercel.app/)**. The Android companion and Worker are not published yet.
 >
 > | | Link |
 > |---|---|
-> | Web app (PWA) | _TODO: add URL once deployed_ |
+> | Web app (PWA) | [openquest-pi.vercel.app](https://openquest-pi.vercel.app/) |
 > | Companion APK | _TODO: add the GitHub Releases link once a release is cut_ |
 > | Worker (optional sync) | _TODO: add URL once deployed_ |
 
