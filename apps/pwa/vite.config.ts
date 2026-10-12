@@ -1,9 +1,17 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  resolve: {
+    // Mirror the tsconfig `paths` entry; without it value imports from
+    // @shared/* do not resolve in dev, build or vitest.
+    alias: {
+      '@shared': fileURLToPath(new URL('../../packages/shared/src', import.meta.url)),
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
