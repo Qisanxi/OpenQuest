@@ -18,9 +18,11 @@ PWA via WebGPU.
 
 ## Build
 
+> No Gradle wrapper is committed yet, so use an installed Gradle ≥ 8.9 (AGP 8.7 requires it).
+
 ```bash
 cd apps/companion
-./gradlew assembleRelease
+gradle assembleRelease
 # APK at: app/build/outputs/apk/release/app-release.apk
 ```
 
