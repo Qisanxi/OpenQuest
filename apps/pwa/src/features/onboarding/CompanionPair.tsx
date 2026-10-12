@@ -23,7 +23,7 @@ export function CompanionPair() {
     const result = await companionBridge.getStatus()
     if (result) {
       setStatus('paired')
-      setTimeout(() => navigate('/'), 1500)
+      setTimeout(() => navigate('/quests'), 1500)
     } else {
       setStatus('failed')
     }
@@ -44,7 +44,7 @@ export function CompanionPair() {
           value={pairingCode}
           onChange={(e) => setPairingCode(e.target.value)}
           placeholder="e.g. abc123def456"
-          className="mb-3 w-full rounded-lg border border-bark-200 bg-white px-3 py-2 text-sm dark:border-bark-700 dark:bg-bark-900"
+          className="mb-3 w-full rounded-lg border border-bark-200 bg-white min-h-11 px-3 py-2 text-base sm:text-sm dark:border-bark-700 dark:bg-bark-900"
         />
 
         {status === 'paired' && (

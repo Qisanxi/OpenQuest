@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { Home } from '../features/home/Home.js'
 import { QuestList } from '../features/quests/QuestList.js'
 import { QuestCard } from '../features/quests/QuestCard.js'
 import { Camera } from '../features/proof/Camera.js'
@@ -11,7 +12,8 @@ import { CompanionPair } from '../features/onboarding/CompanionPair.js'
 export function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<QuestList />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/quests" element={<QuestList />} />
       <Route path="/quest/:questId" element={<QuestCard />} />
       <Route path="/quest/:questId/camera" element={<Camera />} />
       <Route path="/quest/:questId/result" element={<VerifyResult />} />

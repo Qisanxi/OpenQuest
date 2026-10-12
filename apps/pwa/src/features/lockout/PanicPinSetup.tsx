@@ -28,7 +28,7 @@ export function PanicPinSetup() {
     // it has been set. The actual PIN lives in the Android Keystore.
     localStorage.setItem('openquest.panicPinSet', 'true')
     setSuccess(true)
-    setTimeout(() => navigate('/'), 1500)
+    setTimeout(() => navigate('/quests'), 1500)
   }
 
   return (
@@ -57,7 +57,7 @@ export function PanicPinSetup() {
           maxLength={4}
           value={pin}
           onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-          className="mb-3 w-full rounded-lg border border-bark-200 bg-white px-3 py-2 text-sm dark:border-bark-700 dark:bg-bark-900"
+          className="mb-3 w-full rounded-lg border border-bark-200 bg-white min-h-11 px-3 py-2 text-base sm:text-sm dark:border-bark-700 dark:bg-bark-900"
         />
 
         <label className="mb-1 block text-xs text-bark-600">Confirm PIN</label>
@@ -68,7 +68,7 @@ export function PanicPinSetup() {
           maxLength={4}
           value={confirm}
           onChange={(e) => setConfirm(e.target.value.replace(/\D/g, ''))}
-          className="mb-3 w-full rounded-lg border border-bark-200 bg-white px-3 py-2 text-sm dark:border-bark-700 dark:bg-bark-900"
+          className="mb-3 w-full rounded-lg border border-bark-200 bg-white min-h-11 px-3 py-2 text-base sm:text-sm dark:border-bark-700 dark:bg-bark-900"
         />
 
         {error && (

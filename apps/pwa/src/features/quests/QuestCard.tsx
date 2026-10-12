@@ -49,7 +49,7 @@ export function QuestCard() {
   async function onAbandon() {
     if (!quest) return
     await abandon(quest.id)
-    navigate('/')
+    navigate('/quests')
   }
 
   const distance = userPos

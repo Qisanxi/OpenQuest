@@ -9,7 +9,7 @@ OpenQuest is a two-part system:
    photos, and judges them. This is 95% of the code.
 
 2. **The Companion** (Kotlin + Jetpack Compose + VpnService) — a tiny
-   Android app (~500 LOC) that locks the phone's internet during a quest.
+   Android app (~900 LOC) that locks the phone's internet during a quest.
    It exposes a localhost HTTP API on port 7777. The PWA calls it via
    `fetch('http://127.0.0.1:7777/...')`.
 
